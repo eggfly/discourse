@@ -21,7 +21,7 @@ import { Promise } from "rsvp";
 import User from "discourse/models/user";
 import ChatMessageInteractor from "discourse/plugins/chat/discourse/lib/chat-message-interactor";
 import {
-  destroyTippyInstances,
+  destroyUserStatuses,
   initUserStatusHtml,
   renderUserStatusHtml,
 } from "discourse/lib/user-status-on-autocomplete";
@@ -411,7 +411,7 @@ export default class ChatComposer extends Component {
         return obj.username || obj.name;
       },
       dataSource: (term) => {
-        destroyTippyInstances();
+        destroyUserStatuses();
         return userSearch({ term, includeGroups: true }).then((result) => {
           if (result?.users?.length > 0) {
             const presentUserNames =
@@ -435,7 +435,7 @@ export default class ChatComposer extends Component {
         this.composer.focus();
         this.captureMentions();
       },
-      onClose: destroyTippyInstances,
+      onClose: destroyUserStatuses,
     });
   }
 
