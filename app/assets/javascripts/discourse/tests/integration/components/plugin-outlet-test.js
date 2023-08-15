@@ -67,6 +67,11 @@ module("Integration | Component | plugin-outlet", function (hooks) {
       `${PREFIX}/test-name/conditional-render`,
       hbs`<span class="conditional-render">I only render sometimes</span>`
     );
+
+    registerTemporaryModule(
+      `${PREFIX}/outlet-with-default/my-connector`,
+      hbs`<span class='result'>Plugin implementation</span>`
+    );
   });
 
   test("Renders a template into the outlet", async function (assert) {
@@ -99,6 +104,31 @@ module("Integration | Component | plugin-outlet", function (hooks) {
       "hi!",
       "actions delegate properly"
     );
+  });
+
+  test("Uses core implementation when no contributed connectors", async function (assert) {
+    this.set("shouldDisplay", false);
+
+    extraConnectorClass("outlet-with-default/my-connector", {
+      shouldRender(args) {
+        return args.shouldDisplay;
+      },
+    });
+
+    await render(
+      hbs`
+        <PluginOutlet @name="outlet-with-default" @outletArgs={{hash shouldDisplay=this.shouldDisplay}}>
+          <span class='result'>Core implementation</span>
+        </PluginOutlet>
+      `
+    );
+
+    assert.dom(".result").hasText("Core implementation");
+
+    this.set("shouldDisplay", true);
+    await settled();
+
+    assert.dom(".result").hasText("Plugin implementation");
   });
 
   test("Reevaluates shouldRender for argument changes", async function (assert) {
